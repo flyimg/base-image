@@ -13,7 +13,7 @@ RUN \
 #install dependencies
 RUN apt-get -y install \
     imagemagick \
-    gcc nasm build-essential make wget vim
+    gcc nasm build-essential make wget vim git
 
 RUN echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
     echo "deb-src http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
