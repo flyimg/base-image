@@ -9,6 +9,12 @@ RUN \
   apt-get -y install \
   nginx supervisor
 
+
+#install dependencies
+RUN apt-get -y install \
+    imagemagick \
+    gcc nasm build-essential make wget vim
+
 RUN echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
     echo "deb-src http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
     wget -O- http://www.dotdeb.org/dotdeb.gpg | apt-key add -
@@ -25,11 +31,6 @@ RUN \
     echo "extension=/usr/lib/php/20151012/intl.so" > /usr/local/etc/php/conf.d/intl.ini && \
     echo "zend_extension=/usr/lib/php/20151012/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
 
-#install dependencies
-RUN apt-get -y install \
-    imagemagick \
-    gcc nasm build-essential make wget \
-    git vim
 
 #install MozJPEG
 RUN \
