@@ -1,6 +1,5 @@
 FROM php:7.0-fpm
 
-
 MAINTAINER sadoknet@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
 
