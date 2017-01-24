@@ -49,10 +49,6 @@ RUN \
     chmod +x /var/facedetect/facedetect && \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
-RUN ln /dev/null /dev/raw1394
-RUN sh -c 'ln -s /dev/null /dev/raw1394'; bash
-
-
 #composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -84,4 +80,4 @@ RUN mkdir -p var/cache/ var/logs/ var/sessions/ web/uploads/.tmb && \
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord"]
+CMD ln /dev/null /dev/raw1394;/usr/bin/supervisord
