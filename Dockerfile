@@ -49,7 +49,8 @@ RUN \
     chmod +x /var/facedetect/facedetect && \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
-RUN echo "\nln /dev/null /dev/raw1394" >> ~/.bashrc
+RUN ln /dev/null /dev/raw1394
+RUN sh -c 'ln -s /dev/null /dev/raw1394'; bash
 
 
 #composer
