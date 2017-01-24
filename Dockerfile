@@ -52,12 +52,6 @@ RUN \
 #composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-#install phpUnit
-RUN \
-    wget https://phar.phpunit.de/phpunit.phar && \
-    chmod +x phpunit.phar && \
-    mv phpunit.phar /usr/local/bin/phpunit
-
 
 RUN apt-get -y upgrade nginx
 
