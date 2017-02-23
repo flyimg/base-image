@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN \
   	apt-get -y update && \
   	apt-get -y install \
-  	nginx supervisor zip unzip libbz2-dev BZip2 \
+  	nginx supervisor zip unzip\
 	imagemagick webp &&\
 #install dependencies
  	apt-get -y install \
@@ -20,7 +20,7 @@ RUN \
     php7.0-intl php-pear \
     php7.0-imap php7.0-mcrypt \
     php7.0-xdebug && \
-    docker-php-ext-install opcache bz2 && \
+    docker-php-ext-install opcache && \
     echo "extension=/usr/lib/php/20151012/intl.so" > /usr/local/etc/php/conf.d/intl.ini && \
     echo "zend_extension=/usr/lib/php/20151012/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
 #install MozJPEG
@@ -36,6 +36,11 @@ RUN \
     git clone https://github.com/wavexx/facedetect.git && \
     chmod +x /var/facedetect/facedetect && \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect && \
+#phantomjs
+    mkdir /tmp/phantomjs && \
+    curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
+        | tar -xj --strip-components=1 -C /tmp/phantomjs && \
+    mv /tmp/phantomjs/bin/phantomjs /usr/local/bin && \
 #composer
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
