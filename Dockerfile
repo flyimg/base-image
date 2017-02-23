@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN \
   	apt-get -y update && \
   	apt-get -y install \
-  	nginx supervisor zip unzip \
+  	nginx supervisor zip unzip libbz2-dev BZip2 \
 	imagemagick webp &&\
 #install dependencies
  	apt-get -y install \
@@ -20,7 +20,7 @@ RUN \
     php7.0-intl php-pear \
     php7.0-imap php7.0-mcrypt \
     php7.0-xdebug && \
-    docker-php-ext-install opcache && \
+    docker-php-ext-install opcache bz2 && \
     echo "extension=/usr/lib/php/20151012/intl.so" > /usr/local/etc/php/conf.d/intl.ini && \
     echo "zend_extension=/usr/lib/php/20151012/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
 #install MozJPEG
