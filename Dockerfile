@@ -55,7 +55,7 @@ WORKDIR /var/www/html
 RUN usermod -u 1000 www-data && \
     mkdir -p /var/www/html/var && \
     chown -R www-data:www-data /var/www/html/var && \
-    mkdir -p var/cache/ var/logs/ var/sessions/ web/uploads/.tmb && \
+    mkdir -p var/cache/ var/log/ var/sessions/ web/uploads/.tmb && \
     chown -R www-data:www-data var/  web/uploads/ && \
     chmod 777 -R var/  web/uploads/
 
