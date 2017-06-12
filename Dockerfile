@@ -1,4 +1,4 @@
-FROM php:7.0-fpm
+FROM php:7.1-fpm
 
 MAINTAINER sadoknet@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,35 +13,40 @@ RUN \
     gcc nasm build-essential make wget vim git && \
     echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
     echo "deb-src http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
-    wget -O- http://www.dotdeb.org/dotdeb.gpg | apt-key add - && \
+    wget -O- http://www.dotdeb.org/dotdeb.gpg | apt-key add -
+
 #PHP7 dependencies
-	apt-get -y update && \
-    apt-get -y install \
-    php7.0-intl php-pear \
-    php7.0-imap php7.0-mcrypt \
-    php7.0-xdebug && \
-    docker-php-ext-install opcache && \
-    echo "extension=/usr/lib/php/20151012/intl.so" > /usr/local/etc/php/conf.d/intl.ini && \
-    echo "zend_extension=/usr/lib/php/20151012/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
+RUN docker-php-ext-install opcache
+
 #install MozJPEG
+RUN \
     wget "https://github.com/mozilla/mozjpeg/releases/download/v3.1/mozjpeg-3.1-release-source.tar.gz" && \
     tar xvf "mozjpeg-3.1-release-source.tar.gz" && \
     cd mozjpeg && \
     ./configure && \
     make && \
-    make install && \
+    make install
+
 #facedetect script
+RUN \
 	cd /var && \
-    apt-get -y install python-numpy libopencv-dev python-opencv && \
+    apt-get -y install python3 python3-numpy libopencv-dev python3-setuptools && \
+    easy_install3 pip && \
+    pip install numpy && \
+    pip install opencv-python && \
     git clone https://github.com/wavexx/facedetect.git && \
     chmod +x /var/facedetect/facedetect && \
-    ln -s /var/facedetect/facedetect /usr/local/bin/facedetect && \
+    ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
+
 #phantomjs
+RUN \
     mkdir /tmp/phantomjs && \
     curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
         | tar -xj --strip-components=1 -C /tmp/phantomjs && \
-    mv /tmp/phantomjs/bin/phantomjs /usr/local/bin && \
+    mv /tmp/phantomjs/bin/phantomjs /usr/local/bin
+
 #composer
+RUN \
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #copy etc/
@@ -58,7 +63,6 @@ RUN usermod -u 1000 www-data && \
     mkdir -p var/cache/ var/log/ var/sessions/ web/uploads/.tmb && \
     chown -R www-data:www-data var/  web/uploads/ && \
     chmod 777 -R var/  web/uploads/
-
 
 EXPOSE 80
 
