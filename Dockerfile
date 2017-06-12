@@ -20,8 +20,8 @@ RUN docker-php-ext-install opcache
 
 #install MozJPEG
 RUN \
-    wget "https://github.com/mozilla/mozjpeg/releases/download/v3.1/mozjpeg-3.1-release-source.tar.gz" && \
-    tar xvf "mozjpeg-3.1-release-source.tar.gz" && \
+    wget "https://github.com/mozilla/mozjpeg/releases/download/v3.2/mozjpeg-3.2-release-source.tar.gz" && \
+    tar xvf "mozjpeg-3.2-release-source.tar.gz" && \
     cd mozjpeg && \
     ./configure && \
     make && \
