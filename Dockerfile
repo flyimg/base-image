@@ -7,15 +7,10 @@ RUN \
   	apt-get -y update && \
   	apt-get -y install \
   	nginx supervisor zip unzip\
-	imagemagick webp &&\
-#install dependencies
- 	apt-get -y install \
-    gcc nasm build-essential make wget vim git && \
-    echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
-    echo "deb-src http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/dotdeb.org.list && \
-    wget -O- http://www.dotdeb.org/dotdeb.gpg | apt-key add -
+	imagemagick webp \
+    gcc nasm build-essential make wget vim git
 
-#PHP7 dependencies
+#opcache
 RUN docker-php-ext-install opcache
 
 #install MozJPEG
