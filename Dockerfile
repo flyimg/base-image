@@ -38,19 +38,12 @@ RUN \
     chmod +x /var/facedetect/facedetect && \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
-#phantomjs
-RUN \
-    mkdir /tmp/phantomjs && \
-    curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 \
-        | tar -xj --strip-components=1 -C /tmp/phantomjs && \
-    mv /tmp/phantomjs/bin/phantomjs /usr/local/bin
-
 #composer
 RUN \
 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #copy etc/
-COPY docker/resources/etc/ /etc/
+COPY resources/etc/ /etc/
 
 COPY .    /var/www/html
 
