@@ -7,7 +7,7 @@ RUN \
   	apt-get -y update && \
   	apt-get -y install \
   	nginx supervisor zip unzip\
-	imagemagick webp \
+	imagemagick webp libmagickwand-dev \
     gcc nasm build-essential make wget vim git
 
 #opcache
@@ -16,6 +16,10 @@ RUN docker-php-ext-install opcache
 #xdebug
 RUN pecl install xdebug \
     && echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
+
+#Imagick
+RUN pecl install imagick \
+    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini
 
 #install MozJPEG
 RUN \
