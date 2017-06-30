@@ -13,6 +13,10 @@ RUN \
 #opcache
 RUN docker-php-ext-install opcache
 
+#xdebug
+RUN pecl install xdebug \
+    && echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
+
 #install MozJPEG
 RUN \
     wget "https://github.com/mozilla/mozjpeg/releases/download/v3.2/mozjpeg-3.2-release-source.tar.gz" && \
