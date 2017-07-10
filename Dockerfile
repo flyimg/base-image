@@ -7,7 +7,7 @@ RUN \
   	apt-get -y update && \
   	apt-get -y install \
   	nginx supervisor zip unzip\
-	imagemagick webp libmagickwand-dev \
+	imagemagick webp libmagickwand-dev libyaml-dev\
     gcc nasm build-essential make wget vim git
 
 #opcache
@@ -20,6 +20,10 @@ RUN pecl install xdebug \
 #Imagick
 RUN pecl install imagick \
     && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini
+
+#yaml-2.0.0
+RUN pecl install yaml-2.0.0 \
+    && echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini
 
 #install MozJPEG
 RUN \
