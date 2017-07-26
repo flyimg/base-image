@@ -42,8 +42,7 @@ RUN \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
 #composer
-RUN \
-curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #disable output access.log to stdout
 RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /usr/local/etc/php-fpm.d/docker.conf
