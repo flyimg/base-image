@@ -34,18 +34,23 @@ RUN \
 #facedetect script
 RUN \
 	cd /var && \
-    easy_install3 pip && \
-    pip install numpy && \
-    pip install opencv-python && \
-    git clone https://github.com/wavexx/facedetect.git && \
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3 get-pip.py && \
+    pip3 install numpy && \
+    pip3 install opencv-python && \
+    git clone https://github.com/flyimg/facedetect.git && \
     chmod +x /var/facedetect/facedetect && \
     ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
+
+#Smart Cropping pytihon plugin
+RUN pip install git+https://github.com/flyimg/python-smart-crop
 
 #composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #disable output access.log to stdout
 RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /usr/local/etc/php-fpm.d/docker.conf
+
 
 #copy etc/
 COPY resources/etc/ /etc/
