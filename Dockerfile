@@ -63,4 +63,4 @@ ENTRYPOINT ["docker-entrypoint"]
 
 WORKDIR /var/www/html
 
-CMD /usr/bin/supervisord
+CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
