@@ -51,9 +51,15 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 #disable output access.log to stdout
 RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /usr/local/etc/php-fpm.d/docker.conf
 
-
 #copy etc/
 COPY resources/etc/ /etc/
+
+ENV PORT 80
+
+COPY resources/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
+ENTRYPOINT ["docker-entrypoint"]
 
 WORKDIR /var/www/html
 
