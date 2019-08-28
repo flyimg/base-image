@@ -3,10 +3,13 @@ FROM php:7.1-fpm-stretch
 MAINTAINER sadoknet@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
 
+ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
+RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
+
 RUN \
   	apt-get -y update && \
   	apt-get -y install --no-install-recommends \
-  	nginx supervisor zip unzip\
+  	nginx zip unzip\
 	imagemagick webp libmagickwand-dev libyaml-dev \
 	python3 python3-numpy libopencv-dev python3-setuptools opencv-data \
     gcc nasm build-essential make wget vim git && \
@@ -59,8 +62,7 @@ ENV PORT 80
 COPY resources/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
-ENTRYPOINT ["docker-entrypoint"]
-
 WORKDIR /var/www/html
 
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisor/supervisord.conf"]
+ENTRYPOINT ["docker-entrypoint", "/init"]
+
