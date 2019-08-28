@@ -3,7 +3,7 @@ FROM php:7.1-fpm-stretch
 MAINTAINER sadoknet@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
+ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
 RUN \
