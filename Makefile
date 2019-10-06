@@ -1,4 +1,4 @@
-VERSION  = 1.0.0
+VERSION  = $(shell git describe --tags)
 IMAGE_NAME  = base-image
 IMAGE_PATH = flyimg/$(IMAGE_NAME):$(VERSION)
 
