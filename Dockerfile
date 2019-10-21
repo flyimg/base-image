@@ -22,7 +22,8 @@ RUN docker-php-ext-install opcache
 RUN pecl install xdebug imagick yaml-2.0.0 && \
     echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini && \
-    echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini
+    echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini && \
+    echo "expose_php=off" > /usr/local/etc/php/conf.d/expose_php.ini
 
 #install MozJPEG
 RUN \
