@@ -1,6 +1,5 @@
-FROM php:7.1-fpm-stretch
+FROM php:7.3-fpm-stretch
 
-MAINTAINER sadoknet@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
@@ -11,16 +10,15 @@ RUN \
   	apt-get -y install --no-install-recommends \
   	nginx zip unzip\
 	imagemagick webp libmagickwand-dev libyaml-dev \
-	python3 python3-numpy libopencv-dev python3-setuptools opencv-data \
+	python3.6 python3-numpy libopencv-dev python3-setuptools opencv-data \
     gcc nasm build-essential make wget vim git && \
     rm -rf /var/lib/apt/lists/*
 
 #opcache
 RUN docker-php-ext-install opcache
 
-#xdebug
-RUN pecl install xdebug imagick yaml-2.0.0 && \
-    echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
+#additional libraries
+RUN pecl install imagick yaml-2.2.0 && \
     echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini && \
     echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini && \
     echo "expose_php=off" > /usr/local/etc/php/conf.d/expose_php.ini
@@ -38,7 +36,7 @@ RUN \
 #facedetect script
 RUN \
 	cd /var && \
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
     python3 get-pip.py && \
     pip3 install numpy && \
     pip3 install opencv-python && \
