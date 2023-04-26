@@ -5,12 +5,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
+#Update stretch repositories
+RUN rm -rf /etc/apt/sources.list.d/* && \
+    echo "deb http://archive.debian.org/debian stretch main contrib non-free" | tee /etc/apt/sources.list
+
 RUN \
   	apt-get -y update && \
   	apt-get -y install --no-install-recommends \
   	nginx zip unzip\
 	imagemagick webp libmagickwand-dev libyaml-dev \
-	python3.6 python3-numpy libopencv-dev python3-setuptools opencv-data \
+	python3-numpy libopencv-dev python3-setuptools opencv-data \
     gcc nasm build-essential make wget vim git && \
     rm -rf /var/lib/apt/lists/*
 
@@ -18,7 +22,7 @@ RUN \
 RUN docker-php-ext-install opcache
 
 #additional libraries
-RUN pecl install xdebug imagick yaml-2.2.0 && \
+RUN pecl install xdebug-3.1.5 imagick yaml-2.2.0 && \
     echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20180731/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini && \
     echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini && \
