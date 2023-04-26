@@ -10,9 +10,15 @@ RUN rm -rf /etc/apt/sources.list.d/* && \
     echo "deb http://archive.debian.org/debian stretch main contrib non-free" | tee /etc/apt/sources.list
 
 RUN \
+    apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove && \
   	apt-get -y update && \
-  	apt-get -y install --no-install-recommends \
-  	nginx zip unzip\
+  	apt-get -y install --no-install-recommends --allow-downgrades\
+  	nginx zip unzip \
+    libxml2=2.9.4+dfsg1-2.2+deb9u2 \
+    libxml2-dev \
+    libmagickcore-6.q16-dev libmagickwand-6.q16-dev \
 	imagemagick webp libmagickwand-dev libyaml-dev \
 	python3-numpy libopencv-dev python3-setuptools opencv-data \
     gcc nasm build-essential make wget vim git && \
