@@ -13,5 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Run push
       run: make push
