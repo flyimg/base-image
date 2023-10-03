@@ -5,25 +5,18 @@ ENV DEBIAN_FRONTEND=noninteractive
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
-#Update stretch repositories
-# RUN rm -rf /etc/apt/sources.list.d/* && \
-#     echo "deb http://archive.debian.org/debian bullseye main contrib non-free" | tee /etc/apt/sources.list
-
 RUN \
     apt clean && \
     apt autoclean && \
     apt autoremove && \
     apt -y update && \
-    apt -y install --no-install-recommends --allow-downgrades\
-    nginx zip unzip 
-
-RUN apt -y install --no-install-recommends --allow-downgrades \
-    libxml2 libxml2-dev 
-RUN  apt -y install --no-install-recommends --allow-downgrades libmagickcore-dev
-
-RUN  apt -y install --no-install-recommends webp libmagickwand-dev libyaml-dev 
-RUN  apt -y install --no-install-recommends python3-numpy libopencv-dev python3-setuptools opencv-data 
-RUN  apt -y install --no-install-recommends gcc nasm build-essential make libpng-dev zlib1g-dev cmake wget vim git && \
+    apt -y install --no-install-recommends \
+    nginx zip unzip \
+    libxml2 libxml2-dev \
+    libmagickcore-dev \
+    webp libmagickwand-dev libyaml-dev \
+    python3-numpy libopencv-dev python3-setuptools opencv-data \
+    gcc nasm build-essential make libpng-dev zlib1g-dev cmake wget vim git && \
     rm -rf /var/lib/apt/lists/*
 
 # #opcache
