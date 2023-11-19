@@ -37,6 +37,7 @@ RUN pecl install imagick yaml xdebug && \
     echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini && \
     echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20220829/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/error_reporting.ini && \
     echo "expose_php=off" > /usr/local/etc/php/conf.d/expose_php.ini
 
 # #install MozJPEG
