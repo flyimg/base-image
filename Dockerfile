@@ -2,45 +2,84 @@ FROM php:8.2-fpm-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+ARG IM_VERSION=7.1.1-22
+ARG LIB_HEIF_VERSION=1.17.5
+ARG LIB_AOM_VERSION=3.7.1
+ARG LIB_WEBP_VERSION=1.3.2
+ARG LIBJXL_VERSION=0.8.2
+
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
 RUN \
-    apt clean && \
-    apt autoclean && \
-    apt autoremove && \
-    apt -y update && \
-    apt -y install --no-install-recommends \
-    nginx zip unzip \
-    libxml2 libxml2-dev \
-    libmagickcore-dev \
-    webp libmagickwand-dev libyaml-dev \
-    python3-numpy libopencv-dev python3-setuptools opencv-data \
-    gcc nasm build-essential make libpng-dev zlib1g-dev cmake wget vim git && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get -y update && \
+    apt-get install -y --no-install-recommends  \
+    wget nginx libyaml-dev python3-distutils zip unzip\
+    git make pkg-config autoconf curl cmake clang libomp-dev ca-certificates automake yasm \
+    # libheif
+    libde265-0 libde265-dev libjpeg62-turbo libjpeg62-turbo-dev x265 libx265-dev libtool \
+    # libwebp
+    libsdl1.2-dev libgif-dev \
+    # libjxl
+    libbrotli-dev \
+    # IM
+    webp opencv-data libpng16-16 libpng-dev libjpeg62-turbo libjpeg62-turbo-dev libgomp1  \
+    ghostscript ffmpeg \
+    libxml2-dev libxml2-utils libtiff-dev libfontconfig1-dev libfreetype6-dev fonts-dejavu liblcms2-2 liblcms2-dev libtcmalloc-minimal4 \
+    libxext6 libbrotli1 && \
+    export CC=clang CXX=clang++ && \
+    # Building libjxl
+    git clone -b v${LIBJXL_VERSION} https://github.com/libjxl/libjxl.git --depth 1 --recursive --shallow-submodules && \
+    cd libjxl && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF .. && \
+    cmake --build . -- -j$(nproc) && \
+    cmake --install . && \
+    cd ../../ && \
+    rm -rf libjxl && \
+    ldconfig /usr/local/lib && \
+    # Building libwebp
+    git clone -b v${LIB_WEBP_VERSION} --depth 1 https://chromium.googlesource.com/webm/libwebp && \
+    cd libwebp && \
+    mkdir build && cd build && cmake ../ && make && make install && \
+    make && make install && \
+    ldconfig /usr/local/lib && \
+    cd ../../ && rm -rf libwebp && \
+    # Building libaom
+    git clone -b v${LIB_AOM_VERSION} --depth 1 https://aomedia.googlesource.com/aom && \
+    mkdir build_aom && \
+    cd build_aom && \
+    cmake ../aom/ -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && make && make install && \
+    ldconfig /usr/local/lib && \
+    cd .. && \
+    rm -rf aom && \
+    rm -rf build_aom && \
+    # Building libheif
+    curl -L https://github.com/strukturag/libheif/releases/download/v${LIB_HEIF_VERSION}/libheif-${LIB_HEIF_VERSION}.tar.gz -o libheif.tar.gz && \
+    tar -xzvf libheif.tar.gz && cd libheif-${LIB_HEIF_VERSION}/ && mkdir build && cd build && cmake --preset=release .. && make && make install && cd ../../ \
+    ldconfig /usr/local/lib && \
+    rm -rf libheif-${LIB_HEIF_VERSION} && rm libheif.tar.gz && \
+    # Building ImageMagick
+    git clone -b ${IM_VERSION} --depth 1 https://github.com/ImageMagick/ImageMagick.git && \
+    cd ImageMagick && \
+    ./configure --without-magick-plus-plus --disable-docs --disable-static --with-tiff --with-jxl --with-tcmalloc && \
+    make && make install && \
+    ldconfig /usr/local/lib && \
+    rm -rf /ImageMagick
 
-# #opcache
+# Opcache
 RUN docker-php-ext-install opcache
 
-RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
-    tar xvf ImageMagick.tar.gz && \
-    rm -rf ImageMagick.tar.gz && \
-    cd ImageMagick-7*/ && \
-    ./configure && \
-    make && \
-    make install && \
-    ldconfig /usr/local/lib
-
-# #additional libraries
-RUN pecl install imagick yaml xdebug && \
+# Additional libraries
+RUN pecl install yaml xdebug && \
     echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini && \
-    echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini && \
-    echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20220829/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
+    echo "zend_extension=xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/error_reporting.ini && \
     echo "expose_php=off" > /usr/local/etc/php/conf.d/expose_php.ini
 
-# #install MozJPEG
+# Install MozJPEG
 RUN \
     cd /opt && \
     wget "https://github.com/mozilla/mozjpeg/archive/refs/tags/v4.1.1.tar.gz" && \
@@ -51,27 +90,29 @@ RUN \
     cmake . && \
     make
 
-#facedetect script
+# Facedetect script
 RUN \
     cd /var && \
     curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
     python3 get-pip.py && \
-    pip3 install numpy && \
+    python3 -m pip install --upgrade pip && \
+    pip3 install numpy pillow&& \
     pip3 install opencv-python && \
     git clone https://github.com/flyimg/facedetect.git && \
     chmod +x /var/facedetect/facedetect && ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
-#Smart Crop python
+# Smart Crop python
 RUN pip install git+https://github.com/flyimg/python-smart-crop
 
-#composer
+# Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-#disable output access.log to stdout
+# Disable output access.log to stdout
 RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /usr/local/etc/php-fpm.d/docker.conf
 
-#copy etc/
+# Copy etc/
 COPY resources/etc/ /etc/
+COPY resources/php-fpm.d/ /usr/local/etc/php-fpm.d/
 
 ENV PORT 80
 
@@ -81,4 +122,3 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 WORKDIR /var/www/html
 
 ENTRYPOINT ["docker-entrypoint", "/init"]
-
