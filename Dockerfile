@@ -96,8 +96,7 @@ RUN \
     curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
     python3 get-pip.py && \
     python3 -m pip install --upgrade pip && \
-    pip3 install numpy pillow&& \
-    pip3 install opencv-python && \
+    pip3 install numpy pillow pillow-heif pillow-avif-plugin opencv-python && \
     git clone https://github.com/flyimg/facedetect.git && \
     chmod +x /var/facedetect/facedetect && ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
