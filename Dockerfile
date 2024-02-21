@@ -2,11 +2,11 @@ FROM php:8.2-fpm-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG IM_VERSION=7.1.1-22
-ARG LIB_HEIF_VERSION=1.17.5
-ARG LIB_AOM_VERSION=3.7.1
+ARG IM_VERSION=7.1.1-28
+ARG LIB_HEIF_VERSION=1.17.6
+ARG LIB_AOM_VERSION=3.8.1
 ARG LIB_WEBP_VERSION=1.3.2
-ARG LIBJXL_VERSION=0.8.2
+ARG LIBJXL_VERSION=0.9.2
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
