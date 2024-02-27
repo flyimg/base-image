@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.4.3](https://github.com/flyimg/base-image/compare/1.4.2...1.4.3) (2024-02-27)
+
+
+### Bug Fixes
+
+* replace libomp-dev by libomp-11-dev ([1954213](https://github.com/flyimg/base-image/commit/1954213e0def83d0ca9b2eb1b7200cec81b66253))
+
 ## [1.4.2](https://github.com/flyimg/base-image/compare/1.4.1...1.4.2) (2024-02-27)
 
 
