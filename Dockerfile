@@ -15,7 +15,7 @@ RUN \
     apt-get -y update && \
     apt-get install -y --no-install-recommends  \
     wget nginx libyaml-dev python3-distutils zip unzip\
-    git make pkg-config autoconf curl cmake clang libomp-dev ca-certificates automake yasm \
+    git make pkg-config autoconf curl cmake clang libomp-11-dev ca-certificates automake yasm \
     # libheif
     libde265-0 libde265-dev libjpeg62-turbo libjpeg62-turbo-dev x265 libx265-dev libtool \
     # libwebp
