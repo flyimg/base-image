@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.4.5](https://github.com/flyimg/base-image/compare/1.4.4...1.4.5) (2024-02-27)
+
+
+### Bug Fixes
+
+* fixing cd workflow, add DAOM_TARGET_CPU=generic ([7c532da](https://github.com/flyimg/base-image/commit/7c532dae33b575954d6d97498583901e44b1799d))
+
 ## [1.4.4](https://github.com/flyimg/base-image/compare/1.4.3...1.4.4) (2024-02-27)
 
 
