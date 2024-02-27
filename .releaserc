@@ -1,0 +1,26 @@
+{
+  "branches": ["main"],
+  "tagFormat": "${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "publish" : true
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogTitle": "# Flyimg Changelog"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"]
+      }
+    ]
+  ]
+}
