@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  REGISTRY_IMAGE: flyimg/base-imae
+  REGISTRY_IMAGE: flyimg/base-image
 
 
 jobs:

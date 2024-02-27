@@ -50,7 +50,7 @@ RUN \
     git clone -b v${LIB_AOM_VERSION} --depth 1 https://aomedia.googlesource.com/aom && \
     mkdir build_aom && \
     cd build_aom && \
-    cmake ../aom/ -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && make && make install && \
+    cmake ../aom/ -DAOM_TARGET_CPU=generic -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && make && make install && \
     ldconfig /usr/local/lib && \
     cd .. && \
     rm -rf aom && \
