@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.4.4](https://github.com/flyimg/base-image/compare/1.4.3...1.4.4) (2024-02-27)
+
+
+### Bug Fixes
+
+* fixing broken libomp lib and replace it with libompl-dev ([48d6f64](https://github.com/flyimg/base-image/commit/48d6f646200e43b208b7e3f737a0794070159c38))
+
 ## [1.4.3](https://github.com/flyimg/base-image/compare/1.4.2...1.4.3) (2024-02-27)
 
 
