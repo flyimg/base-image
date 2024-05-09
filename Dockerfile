@@ -1,5 +1,7 @@
 FROM php:8.2-fpm-bullseye
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 ARG IM_VERSION=7.1.1-32
 ARG LIB_HEIF_VERSION=1.17.6
 ARG LIB_AOM_VERSION=3.9.0
@@ -7,9 +9,7 @@ ARG LIB_WEBP_VERSION=1.4.0
 ARG LIBJXL_VERSION=0.10.2
 ARG TARGETPLATFORM
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# install s6-overla
+# Install s6-overlay
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
     elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then ARCHITECTURE=arm; \
     elif [ "$TARGETPLATFORM" = "linux/arm/v8" ]; then ARCHITECTURE=arm; \
@@ -18,6 +18,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
     && curl -sS -L -O --output-dir /tmp/ --create-dirs https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-${ARCHITECTURE}.tar.gz \
     && tar xzf /tmp/s6-overlay-${ARCHITECTURE}.tar.gz -C /
 
+# Install dependencies and main libraries needed for ImageMagick
 RUN \
     apt-get -y update && \
     apt-get install -y --no-install-recommends  \
@@ -112,14 +113,14 @@ RUN \
     git clone https://github.com/flyimg/facedetect.git && \
     chmod +x /var/facedetect/facedetect && ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
 
-# pillow-avif-plugin only available for amd64 arch
+# pillow-avif-plugin only available for amd64/arm64 arch
 # https://github.com/python-pillow/Pillow/pull/5201
 # https://github.com/fdintino/pillow-avif-plugin/pull/38
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" ]; then \
         pip3 install pillow-avif-plugin; \
     fi
 
-# to creates the necessary links and cache in /usr/local/lib
+# To creates the necessary links and cache in /usr/local/lib
 RUN ldconfig /usr/local/lib
 
 # Smart Crop python
