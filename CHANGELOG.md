@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+# [1.5.0](https://github.com/flyimg/base-image/compare/1.4.5...1.5.0) (2024-05-09)
+
+
+### Features
+
+* update main libraries and add multi platform build ([5f54cdd](https://github.com/flyimg/base-image/commit/5f54cdd46957143cb33a998bb310d117859889d6))
+
 ## [1.4.5](https://github.com/flyimg/base-image/compare/1.4.4...1.4.5) (2024-02-27)
 
 
