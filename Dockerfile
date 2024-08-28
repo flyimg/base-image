@@ -22,7 +22,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
 RUN \
     apt-get -y update && \
     apt-get install -y --no-install-recommends  \
-    wget nginx libyaml-dev python3-distutils zip unzip\
+    wget nginx libyaml-dev python3-distutils zip unzip cron\
     git make pkg-config autoconf curl cmake clang libompl-dev ca-certificates automake yasm \
     # libheif
     libde265-0 libde265-dev libjpeg62-turbo libjpeg62-turbo-dev x265 libx265-dev libtool \
