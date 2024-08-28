@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.5.1](https://github.com/flyimg/base-image/compare/1.5.0...1.5.1) (2024-08-28)
+
+
+### Bug Fixes
+
+* add cron service ([0a52586](https://github.com/flyimg/base-image/commit/0a525864e3cad3e6d0e6b25a574bd1f3501840bc))
+
 # [1.5.0](https://github.com/flyimg/base-image/compare/1.4.5...1.5.0) (2024-05-10)
 
 
