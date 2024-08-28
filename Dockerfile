@@ -21,8 +21,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
 # Install dependencies and main libraries needed for ImageMagick
 RUN \
     apt-get -y update && \
-    apt-get install -y --no-install-recommends  \
-    wget nginx libyaml-dev python3-distutils zip unzip cron\
+    apt-get install -y --no-install-recommends \
+    wget nginx libyaml-dev python3-distutils zip unzip cron \
     git make pkg-config autoconf curl cmake clang libompl-dev ca-certificates automake yasm \
     # libheif
     libde265-0 libde265-dev libjpeg62-turbo libjpeg62-turbo-dev x265 libx265-dev libtool \
@@ -31,7 +31,7 @@ RUN \
     # libjxl
     libbrotli-dev \
     # IM
-    webp opencv-data libpng16-16 libpng-dev libjpeg62-turbo libjpeg62-turbo-dev libgomp1  \
+    webp opencv-data libpng16-16 libpng-dev libjpeg62-turbo libjpeg62-turbo-dev libgomp1 \
     ghostscript ffmpeg \
     libxml2-dev libxml2-utils libtiff-dev libfontconfig1-dev libfreetype6-dev fonts-dejavu liblcms2-2 liblcms2-dev libtcmalloc-minimal4 \
     libxext6 libbrotli1 && \
