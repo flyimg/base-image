@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+# [1.6.0](https://github.com/flyimg/base-image/compare/1.5.1...1.6.0) (2024-08-29)
+
+
+### Features
+
+* upgrade imagemagick library + HEIF, AOM, LIBJXL ([4095c89](https://github.com/flyimg/base-image/commit/4095c894f238e58789df6929bb517a423ff417f0))
+
 ## [1.5.1](https://github.com/flyimg/base-image/compare/1.5.0...1.5.1) (2024-08-28)
 
 
