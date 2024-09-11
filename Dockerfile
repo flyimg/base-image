@@ -103,15 +103,13 @@ RUN \
     apt-get -y update && \
     apt-get install -y python3-dev libssl-dev python3-opencv
 
-# Facedetect script
+# Facedetect & Smartcrop dependencies
 RUN \
     cd /var && \
     curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
     python3 get-pip.py && \
     python3 -m pip install --upgrade pip && \
-    pip3 install numpy pillow && \
-    git clone https://github.com/flyimg/facedetect.git && \
-    chmod +x /var/facedetect/facedetect && ln -s /var/facedetect/facedetect /usr/local/bin/facedetect
+    pip3 install numpy pillow
 
 # pillow-avif-plugin only available for amd64/arm64 arch
 # https://github.com/python-pillow/Pillow/pull/5201
@@ -122,9 +120,6 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" 
 
 # To creates the necessary links and cache in /usr/local/lib
 RUN ldconfig /usr/local/lib
-
-# Smart Crop python
-RUN pip install git+https://github.com/flyimg/python-smart-crop
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
