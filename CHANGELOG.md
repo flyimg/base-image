@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.6.1](https://github.com/flyimg/base-image/compare/1.6.0...1.6.1) (2024-09-11)
+
+
+### Bug Fixes
+
+* remove facedetect and smartcrop installation ([fd356bc](https://github.com/flyimg/base-image/commit/fd356bcc0cb2abb33ef92dc3e008e0eac8e9dcdd))
+
 # [1.6.0](https://github.com/flyimg/base-image/compare/1.5.1...1.6.0) (2024-08-29)
 
 
