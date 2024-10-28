@@ -139,6 +139,9 @@ RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /
 COPY resources/etc/ /etc/
 COPY resources/php-fpm.d/ /usr/local/etc/php-fpm.d/
 
+# Remove default nginx config
+RUN rm -rf /etc/nginx/conf.d/default.conf
+
 ENV PORT 80
 
 COPY resources/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
