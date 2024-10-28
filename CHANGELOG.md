@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.7.1](https://github.com/flyimg/base-image/compare/1.7.0...1.7.1) (2024-10-28)
+
+
+### Bug Fixes
+
+* remove default nginx config ([3a035be](https://github.com/flyimg/base-image/commit/3a035bed015fa82e0790fd4ee21ed304328c1bd7))
+
 # [1.7.0](https://github.com/flyimg/base-image/compare/1.6.1...1.7.0) (2024-10-28)
 
 
