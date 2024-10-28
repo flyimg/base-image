@@ -1,5 +1,17 @@
 # Flyimg Changelog
 
+# [1.7.0](https://github.com/flyimg/base-image/compare/1.6.1...1.7.0) (2024-10-28)
+
+
+### Bug Fixes
+
+* update imagemagick library version and AOM, WEBP, LIBJXL ([a8e5dba](https://github.com/flyimg/base-image/commit/a8e5dba6e47a820f5973a712bd14371b79ee8916))
+
+
+### Features
+
+* update to the latest nginx stable version: ([7b0e17f](https://github.com/flyimg/base-image/commit/7b0e17fb69f33e66745eea9475142c92db275b32))
+
 ## [1.6.1](https://github.com/flyimg/base-image/compare/1.6.0...1.6.1) (2024-09-11)
 
 
