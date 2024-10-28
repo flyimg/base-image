@@ -18,8 +18,16 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
     && curl -sS -L -O --output-dir /tmp/ --create-dirs https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-${ARCHITECTURE}.tar.gz \
     && tar xzf /tmp/s6-overlay-${ARCHITECTURE}.tar.gz -C /
 
-# Install dependencies and main libraries needed for ImageMagick
+# Install latest Nginx and dependencies & main libraries needed for ImageMagick
 RUN \
+    apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+    gnupg2 ca-certificates lsb-release debian-archive-keyring && \
+    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
+    | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+    http://nginx.org/packages/debian `lsb_release -cs` nginx" \
+    | tee /etc/apt/sources.list.d/nginx.list && \
     apt-get -y update && \
     apt-get install -y --no-install-recommends \
     wget nginx libyaml-dev python3-distutils zip unzip cron \
