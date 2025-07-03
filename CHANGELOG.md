@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.1](https://github.com/flyimg/base-image/compare/1.8.0...1.8.1) (2025-07-03)
+
+
+### Bug Fixes
+
+* update Dockerfile to conditionally install pillow-avif-plugin based on TARGETPLATFORM and set PORT environment variable correctly ([d1bfe64](https://github.com/flyimg/base-image/commit/d1bfe64cb1c2d231e7860aec7e9c911455589939))
+
 # [1.8.0](https://github.com/flyimg/base-image/compare/1.7.2...1.8.0) (2025-07-03)
 
 
