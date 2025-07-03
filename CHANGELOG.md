@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+# [1.8.0](https://github.com/flyimg/base-image/compare/1.7.2...1.8.0) (2025-07-03)
+
+
+### Features
+
+* streamline Dockerfile and update build process by using multi-stage build ([4519b1a](https://github.com/flyimg/base-image/commit/4519b1aad194f6e5dffd1aaff1d4e57f000068b8))
+
 ## [1.7.2](https://github.com/flyimg/base-image/compare/1.7.1...1.7.2) (2025-07-03)
 
 
