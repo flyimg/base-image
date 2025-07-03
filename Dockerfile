@@ -1,130 +1,99 @@
-FROM php:8.3-fpm-bullseye
+FROM php:8.3-fpm-bullseye AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG S6_OVERLAY_VERSION=1.22.1.0
-ARG IM_VERSION=7.1.1-47
-ARG LIB_HEIF_VERSION=1.20.0
-ARG LIB_AOM_VERSION=3.12.1
-ARG LIB_WEBP_VERSION=1.5.0
-ARG LIBJXL_VERSION=0.11.1
-ARG PILLOW_VERSION=11.3.0
-ARG PILLOW_AVIF_PLUGIN_VERSION=1.5.2
-ARG MOZJPEG_VERSION=4.1.1
 ARG TARGETPLATFORM
+ARG S6_OVERLAY_VERSION=1.22.1.0
 
-# Install s6-overlay
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
-    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then ARCHITECTURE=arm; \
-    elif [ "$TARGETPLATFORM" = "linux/arm/v8" ]; then ARCHITECTURE=arm; \
-    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=aarch64; \
-    else ARCHITECTURE=amd64; fi \
-    && curl -sS -L -O --output-dir /tmp/ --create-dirs https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCHITECTURE}.tar.gz \
-    && tar xzf /tmp/s6-overlay-${ARCHITECTURE}.tar.gz -C /
+# Determine architecture for s6-overlay
+RUN ARCH="$(case "$TARGETPLATFORM" in \
+        "linux/amd64") echo "amd64" ;; \
+        "linux/arm/v7") echo "arm" ;; \
+        "linux/arm/v8"|"linux/arm64") echo "aarch64" ;; \
+        *) echo "amd64" ;; \
+    esac)" && \
+    curl -sSL -o /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.gz && \
+    tar xzf /tmp/s6-overlay.tar.gz -C / && \
+    rm /tmp/s6-overlay.tar.gz
 
-# Install latest Nginx and dependencies & main libraries needed for ImageMagick
-RUN \
-    apt-get -y update && \
-    apt-get install -y --no-install-recommends \
-    gnupg2 ca-certificates lsb-release debian-archive-keyring && \
-    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
-    | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null && \
-    echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-    http://nginx.org/packages/debian `lsb_release -cs` nginx" \
-    | tee /etc/apt/sources.list.d/nginx.list && \
-    apt-get -y update && \
-    apt-get install -y --no-install-recommends \
-    wget nginx libyaml-dev python3-distutils zip unzip cron \
-    git make pkg-config autoconf curl cmake clang libompl-dev ca-certificates automake yasm \
-    # libheif
-    libde265-0 libde265-dev libjpeg62-turbo libjpeg62-turbo-dev x265 libx265-dev libtool \
-    # libwebp
-    libsdl1.2-dev libgif-dev \
-    # libjxl
-    libbrotli-dev \
-    # IM
-    webp opencv-data libpng16-16 libpng-dev libjpeg62-turbo libjpeg62-turbo-dev libgomp1 \
-    ghostscript ffmpeg \
-    libxml2-dev libxml2-utils libtiff-dev libfontconfig1-dev libfreetype6-dev fonts-dejavu liblcms2-2 liblcms2-dev libtcmalloc-minimal4 \
-    libxext6 libbrotli1 && \
-    export CC=clang CXX=clang++ && \
-    # Building libjxl
-    git clone -b v${LIBJXL_VERSION} https://github.com/libjxl/libjxl.git --depth 1 --recursive --shallow-submodules && \
-    cd libjxl && \
-    mkdir build && \
-    cd build && \
+# Base deps and tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl gnupg2 ca-certificates lsb-release software-properties-common \
+    git make pkg-config autoconf cmake clang automake yasm \
+    libtool zip unzip cron wget python3-dev python3-distutils python3-opencv python3-pip libssl-dev \
+    libpng-dev libjpeg62-turbo-dev libtiff-dev libgif-dev \
+    libxml2-dev libfreetype6-dev libfontconfig1-dev liblcms2-dev \
+    libxext6 libgomp1 libbrotli-dev libyaml-dev libtcmalloc-minimal4 \
+    libsdl1.2-dev ghostscript ffmpeg opencv-data \
+    libde265-0 libde265-dev x265 libx265-dev \
+    nginx webp libpng16-16 liblcms2-2 libxml2-utils fonts-dejavu && \
+    rm -rf /var/lib/apt/lists/*
+
+##########################################
+# Builder for native libs
+##########################################
+FROM base AS builder
+
+ARG LIB_JXL_VERSION=0.11.1
+ARG LIB_WEBP_VERSION=1.5.0
+ARG LIB_AOM_VERSION=3.12.1
+ARG LIB_HEIF_VERSION=1.20.0
+ARG MOZJPEG_VERSION=4.1.1
+
+WORKDIR /build
+
+# Build libjxl
+RUN git clone -b v${LIB_JXL_VERSION} --depth 1 --recursive https://github.com/libjxl/libjxl.git && \
+    mkdir libjxl/build && cd libjxl/build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF .. && \
-    cmake --build . -- -j$(nproc) && \
-    cmake --install . && \
-    cd ../../ && \
-    rm -rf libjxl && \
-    ldconfig /usr/local/lib && \
-    # Building libwebp
-    git clone -b v${LIB_WEBP_VERSION} --depth 1 https://chromium.googlesource.com/webm/libwebp && \
-    cd libwebp && \
-    mkdir build && cd build && cmake ../ && make && make install && \
-    make && make install && \
-    ldconfig /usr/local/lib && \
-    cd ../../ && rm -rf libwebp && \
-    # Building libaom
-    git clone -b v${LIB_AOM_VERSION} --depth 1 https://aomedia.googlesource.com/aom && \
-    mkdir build_aom && \
-    cd build_aom && \
-    cmake ../aom/ -DAOM_TARGET_CPU=generic -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && make && make install && \
-    ldconfig /usr/local/lib && \
-    cd .. && \
-    rm -rf aom && \
-    rm -rf build_aom && \
-    # Building libheif
-    curl -L https://github.com/strukturag/libheif/releases/download/v${LIB_HEIF_VERSION}/libheif-${LIB_HEIF_VERSION}.tar.gz -o libheif.tar.gz && \
-    tar -xzvf libheif.tar.gz && cd libheif-${LIB_HEIF_VERSION}/ && mkdir build && cd build && cmake --preset=release .. && make && make install && cd ../../ \
-    ldconfig /usr/local/lib && \
-    rm -rf libheif-${LIB_HEIF_VERSION} && rm libheif.tar.gz && \
-    # Building ImageMagick
-    git clone -b ${IM_VERSION} --depth 1 https://github.com/ImageMagick/ImageMagick.git && \
-    cd ImageMagick && \
-    ./configure --without-magick-plus-plus --disable-docs --disable-static --with-tiff --with-jxl --with-tcmalloc && \
-    make && make install && \
-    ldconfig /usr/local/lib && \
-    rm -rf /ImageMagick
+    make -j$(nproc) && make install && ldconfig && cd ../.. && rm -rf libjxl
 
-# Opcache
-RUN docker-php-ext-install opcache
+# Build libwebp
+RUN git clone -b v${LIB_WEBP_VERSION} --depth 1 https://chromium.googlesource.com/webm/libwebp && \
+    cd libwebp && ./autogen.sh && ./configure && make -j$(nproc) && make install && cd .. && rm -rf libwebp
 
-# Additional libraries
-RUN pecl install yaml xdebug && \
+# Build libaom
+RUN git clone -b v${LIB_AOM_VERSION} --depth 1 https://aomedia.googlesource.com/aom && \
+    mkdir build_aom && cd build_aom && \
+    cmake ../aom/ -DAOM_TARGET_CPU=generic -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && \
+    make -j$(nproc) && make install && ldconfig && cd .. && rm -rf aom build_aom
+
+# Build libheif
+RUN curl -L -o libheif.tar.gz https://github.com/strukturag/libheif/releases/download/v${LIB_HEIF_VERSION}/libheif-${LIB_HEIF_VERSION}.tar.gz && \
+    tar xzf libheif.tar.gz && cd libheif-${LIB_HEIF_VERSION} && \
+    mkdir build && cd build && cmake --preset=release .. && \
+    make -j$(nproc) && make install && ldconfig && cd ../.. && rm -rf libheif-${LIB_HEIF_VERSION} libheif.tar.gz
+
+# Build MozJPEG
+RUN wget https://github.com/mozilla/mozjpeg/archive/refs/tags/v${MOZJPEG_VERSION}.tar.gz && \
+    tar xzf v${MOZJPEG_VERSION}.tar.gz && cd mozjpeg-${MOZJPEG_VERSION} && \
+    cmake . && make -j$(nproc) && make install && ldconfig && cd .. && rm -rf mozjpeg-${MOZJPEG_VERSION} v${MOZJPEG_VERSION}.tar.gz
+
+##########################################
+# Final Image
+##########################################
+FROM base AS final
+
+COPY --from=builder /usr/local /usr/local
+
+# Install ImageMagick
+ARG IM_VERSION=7.1.1-47
+RUN git clone -b ${IM_VERSION} --depth 1 https://github.com/ImageMagick/ImageMagick.git && \
+    cd ImageMagick && ./configure --without-magick-plus-plus --disable-docs --disable-static \
+    --with-tiff --with-jxl --with-tcmalloc && make -j$(nproc) && make install && ldconfig && cd .. && rm -rf ImageMagick
+
+# PHP Extensions
+RUN docker-php-ext-install opcache && \
+    pecl install yaml xdebug && \
     echo "extension=yaml.so" > /usr/local/etc/php/conf.d/yaml.ini && \
     echo "zend_extension=xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini && \
-    echo "error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/error_reporting.ini && \
-    echo "expose_php=off" > /usr/local/etc/php/conf.d/expose_php.ini
+    echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini
 
-# Install MozJPEG
-RUN \
-    cd /opt && \
-    wget "https://github.com/mozilla/mozjpeg/archive/refs/tags/v${MOZJPEG_VERSION}.tar.gz" && \
-    tar xvf "v${MOZJPEG_VERSION}.tar.gz" && \
-    rm v${MOZJPEG_VERSION}.tar.gz && \
-    mv mozjpeg-${MOZJPEG_VERSION}  mozjpeg&& \
-    cd mozjpeg && \
-    cmake . && \
-    make
-
-# Install OpenCV
-RUN \
-    apt-get -y update && \
-    apt-get install -y python3-dev libssl-dev python3-opencv
-
-# Facedetect & Smartcrop dependencies
-RUN \
-    cd /var && \
-    curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
-    python3 get-pip.py && \
-    python3 -m pip install --upgrade pip && \
-    pip3 install numpy pillow==${PILLOW_VERSION}
-
-# Install pillow-avif-plugin
-RUN pip3 install pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}
+# Python deps
+ARG PILLOW_VERSION=11.3.0
+ARG PILLOW_AVIF_PLUGIN_VERSION=1.5.2
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install numpy pillow==${PILLOW_VERSION} pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}
 
 # To creates the necessary links and cache in /usr/local/lib
 RUN ldconfig /usr/local/lib
@@ -132,21 +101,14 @@ RUN ldconfig /usr/local/lib
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Disable output access.log to stdout
-RUN sed -i -e 's#access.log = /proc/self/fd/2#access.log = /proc/self/fd/1#g'  /usr/local/etc/php-fpm.d/docker.conf
-
-# Copy etc/
+# Copy configs
 COPY resources/etc/ /etc/
 COPY resources/php-fpm.d/ /usr/local/etc/php-fpm.d/
-
-# Remove default nginx config
-RUN rm -rf /etc/nginx/conf.d/default.conf
-
-ENV PORT 80
-
 COPY resources/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
-WORKDIR /var/www/html
+RUN rm -f /etc/nginx/conf.d/default.conf || true
 
+ENV PORT 80
+WORKDIR /var/www/html
 ENTRYPOINT ["docker-entrypoint", "/init"]
