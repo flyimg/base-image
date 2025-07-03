@@ -2,11 +2,15 @@ FROM php:8.3-fpm-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG IM_VERSION=7.1.1-39
-ARG LIB_HEIF_VERSION=1.18.2
-ARG LIB_AOM_VERSION=3.10.0
-ARG LIB_WEBP_VERSION=1.4.0
-ARG LIBJXL_VERSION=0.11.0
+ARG S6_OVERLAY_VERSION=1.22.1.0
+ARG IM_VERSION=7.1.1-47
+ARG LIB_HEIF_VERSION=1.20.0
+ARG LIB_AOM_VERSION=3.12.1
+ARG LIB_WEBP_VERSION=1.5.0
+ARG LIBJXL_VERSION=0.11.1
+ARG PILLOW_VERSION=11.3.0
+ARG PILLOW_AVIF_PLUGIN_VERSION=1.5.2
+ARG MOZJPEG_VERSION=4.1.1
 ARG TARGETPLATFORM
 
 # Install s6-overlay
@@ -15,7 +19,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
     elif [ "$TARGETPLATFORM" = "linux/arm/v8" ]; then ARCHITECTURE=arm; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=aarch64; \
     else ARCHITECTURE=amd64; fi \
-    && curl -sS -L -O --output-dir /tmp/ --create-dirs https://github.com/just-containers/s6-overlay/releases/download/v1.22.1.0/s6-overlay-${ARCHITECTURE}.tar.gz \
+    && curl -sS -L -O --output-dir /tmp/ --create-dirs https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCHITECTURE}.tar.gz \
     && tar xzf /tmp/s6-overlay-${ARCHITECTURE}.tar.gz -C /
 
 # Install latest Nginx and dependencies & main libraries needed for ImageMagick
@@ -98,10 +102,10 @@ RUN pecl install yaml xdebug && \
 # Install MozJPEG
 RUN \
     cd /opt && \
-    wget "https://github.com/mozilla/mozjpeg/archive/refs/tags/v4.1.1.tar.gz" && \
-    tar xvf "v4.1.1.tar.gz" && \
-    rm v4.1.1.tar.gz && \
-    mv mozjpeg-4.1.1  mozjpeg&& \
+    wget "https://github.com/mozilla/mozjpeg/archive/refs/tags/v${MOZJPEG_VERSION}.tar.gz" && \
+    tar xvf "v${MOZJPEG_VERSION}.tar.gz" && \
+    rm v${MOZJPEG_VERSION}.tar.gz && \
+    mv mozjpeg-${MOZJPEG_VERSION}  mozjpeg&& \
     cd mozjpeg && \
     cmake . && \
     make
@@ -117,14 +121,10 @@ RUN \
     curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py && \
     python3 get-pip.py && \
     python3 -m pip install --upgrade pip && \
-    pip3 install numpy pillow
+    pip3 install numpy pillow==${PILLOW_VERSION}
 
-# pillow-avif-plugin only available for amd64/arm64 arch
-# https://github.com/python-pillow/Pillow/pull/5201
-# https://github.com/fdintino/pillow-avif-plugin/pull/38
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        pip3 install pillow-avif-plugin; \
-    fi
+# Install pillow-avif-plugin
+RUN pip3 install pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}
 
 # To creates the necessary links and cache in /usr/local/lib
 RUN ldconfig /usr/local/lib
