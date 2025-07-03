@@ -93,7 +93,10 @@ RUN docker-php-ext-install opcache && \
 ARG PILLOW_VERSION=11.3.0
 ARG PILLOW_AVIF_PLUGIN_VERSION=1.5.2
 RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install numpy pillow==${PILLOW_VERSION} pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}
+    pip3 install numpy pillow==${PILLOW_VERSION} && \
+    if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        pip3 install pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}; \
+    fi
 
 # To creates the necessary links and cache in /usr/local/lib
 RUN ldconfig /usr/local/lib
@@ -109,6 +112,6 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 
 RUN rm -f /etc/nginx/conf.d/default.conf || true
 
-ENV PORT 80
+ENV PORT=80
 WORKDIR /var/www/html
 ENTRYPOINT ["docker-entrypoint", "/init"]
