@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.7.2](https://github.com/flyimg/base-image/compare/1.7.1...1.7.2) (2025-07-03)
+
+
+### Bug Fixes
+
+* update dependencies in Dockerfile ([ae613ba](https://github.com/flyimg/base-image/commit/ae613ba7aa925ea874a24f5ff31716e3739cdd50))
+
 ## [1.7.1](https://github.com/flyimg/base-image/compare/1.7.0...1.7.1) (2024-10-28)
 
 
