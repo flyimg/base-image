@@ -34,11 +34,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ##########################################
 FROM base AS builder
 
-ARG LIB_JXL_VERSION=0.11.1
-ARG LIB_WEBP_VERSION=1.5.0
-ARG LIB_AOM_VERSION=3.12.1
-ARG LIB_HEIF_VERSION=1.20.0
-ARG MOZJPEG_VERSION=4.1.1
+ARG LIB_JXL_VERSION=0.12.0
+ARG LIB_WEBP_VERSION=1.6.0
+ARG LIB_AOM_VERSION=3.14.1
+ARG LIB_HEIF_VERSION=1.23.2
+ARG MOZJPEG_VERSION=4.1.5
 
 WORKDIR /build
 
@@ -64,10 +64,13 @@ RUN curl -L -o libheif.tar.gz https://github.com/strukturag/libheif/releases/dow
     mkdir build && cd build && cmake --preset=release .. && \
     make -j$(nproc) && make install && ldconfig && cd ../.. && rm -rf libheif-${LIB_HEIF_VERSION} libheif.tar.gz
 
-# Build MozJPEG
+# Build MozJPEG into /opt/mozjpeg so it does not replace system libjpeg.
+# Static cjpeg avoids a competing libjpeg.so on the loader path.
+# cmake's default prefix is /opt/mozjpeg; make install places cjpeg in bin/.
 RUN wget https://github.com/mozilla/mozjpeg/archive/refs/tags/v${MOZJPEG_VERSION}.tar.gz && \
     tar xzf v${MOZJPEG_VERSION}.tar.gz && cd mozjpeg-${MOZJPEG_VERSION} && \
-    cmake . && make -j$(nproc) && make install && ldconfig && cd .. && rm -rf mozjpeg-${MOZJPEG_VERSION} v${MOZJPEG_VERSION}.tar.gz
+    cmake -DCMAKE_INSTALL_PREFIX=/opt/mozjpeg -DENABLE_SHARED=OFF . && \
+    make -j$(nproc) && make install && cd .. && rm -rf mozjpeg-${MOZJPEG_VERSION} v${MOZJPEG_VERSION}.tar.gz
 
 ##########################################
 # Final Image
@@ -75,9 +78,11 @@ RUN wget https://github.com/mozilla/mozjpeg/archive/refs/tags/v${MOZJPEG_VERSION
 FROM base AS final
 
 COPY --from=builder /usr/local /usr/local
+# MozJPEG installs under /opt/mozjpeg, which is outside the /usr/local copy above.
+COPY --from=builder /opt/mozjpeg /opt/mozjpeg
 
 # Install ImageMagick
-ARG IM_VERSION=7.1.1-47
+ARG IM_VERSION=7.1.2-30
 RUN git clone -b ${IM_VERSION} --depth 1 https://github.com/ImageMagick/ImageMagick.git && \
     cd ImageMagick && ./configure --without-magick-plus-plus --disable-docs --disable-static \
     --with-tiff --with-jxl --with-tcmalloc && make -j$(nproc) && make install && ldconfig && cd .. && rm -rf ImageMagick
@@ -91,7 +96,7 @@ RUN docker-php-ext-install opcache && \
 
 # Python deps
 ARG PILLOW_VERSION=11.3.0
-ARG PILLOW_AVIF_PLUGIN_VERSION=1.5.2
+ARG PILLOW_AVIF_PLUGIN_VERSION=1.6.0
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install numpy pillow==${PILLOW_VERSION} && \
     if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" ]; then \
@@ -99,7 +104,7 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     fi
 
 # To creates the necessary links and cache in /usr/local/lib
-RUN ldconfig /usr/local/lib
+RUN ldconfig /usr/local/lib && ln -sf /opt/mozjpeg/bin/cjpeg /usr/local/bin/cjpeg
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
