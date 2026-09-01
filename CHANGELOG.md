@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.2](https://github.com/flyimg/base-image/compare/1.8.1...1.8.2) (2026-09-01)
+
+
+### Bug Fixes
+
+* restore MozJPEG in the final image and bump native libraries ([f38740e](https://github.com/flyimg/base-image/commit/f38740e42c1191ede4f4bd052dc91b67e18e8dbc))
+
 ## [1.8.1](https://github.com/flyimg/base-image/compare/1.8.0...1.8.1) (2025-07-03)
 
 
