@@ -36,8 +36,8 @@ FROM base AS builder
 
 ARG LIB_JXL_VERSION=0.12.0
 ARG LIB_WEBP_VERSION=1.6.0
-ARG LIB_AOM_VERSION=3.14.1
-ARG LIB_HEIF_VERSION=1.23.2
+ARG LIB_AOM_VERSION=3.15.2
+ARG LIB_HEIF_VERSION=1.23.6
 ARG MOZJPEG_VERSION=4.1.5
 
 WORKDIR /build
@@ -82,7 +82,7 @@ COPY --from=builder /usr/local /usr/local
 COPY --from=builder /opt/mozjpeg /opt/mozjpeg
 
 # Install ImageMagick
-ARG IM_VERSION=7.1.2-30
+ARG IM_VERSION=7.1.2-34
 RUN git clone -b ${IM_VERSION} --depth 1 https://github.com/ImageMagick/ImageMagick.git && \
     cd ImageMagick && ./configure --without-magick-plus-plus --disable-docs --disable-static \
     --with-tiff --with-jxl --with-tcmalloc && make -j$(nproc) && make install && ldconfig && cd .. && rm -rf ImageMagick
