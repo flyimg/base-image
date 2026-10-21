@@ -1,22 +1,11 @@
-FROM php:8.3-fpm-bullseye AS base
+FROM php:8.3-fpm-bookworm AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG TARGETPLATFORM
-ARG S6_OVERLAY_VERSION=1.22.1.0
+ARG S6_OVERLAY_VERSION=3.2.3.2
 
-# Determine architecture for s6-overlay
-RUN ARCH="$(case "$TARGETPLATFORM" in \
-        "linux/amd64") echo "amd64" ;; \
-        "linux/arm/v7") echo "arm" ;; \
-        "linux/arm/v8"|"linux/arm64") echo "aarch64" ;; \
-        *) echo "amd64" ;; \
-    esac)" && \
-    curl -sSL -o /tmp/s6-overlay.tar.gz https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.gz && \
-    tar xzf /tmp/s6-overlay.tar.gz -C / && \
-    rm /tmp/s6-overlay.tar.gz
-
-# Base deps and tools
+# Base deps and tools. xz-utils is required to extract s6-overlay.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl gnupg2 ca-certificates lsb-release software-properties-common \
     git make pkg-config autoconf cmake clang automake yasm \
@@ -26,8 +15,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 libgomp1 libbrotli-dev libyaml-dev libtcmalloc-minimal4 \
     libsdl1.2-dev ghostscript ffmpeg opencv-data \
     libde265-0 libde265-dev x265 libx265-dev \
-    nginx webp libpng16-16 liblcms2-2 libxml2-utils fonts-dejavu && \
+    nginx webp libpng16-16 liblcms2-2 libxml2-utils fonts-dejavu xz-utils && \
     rm -rf /var/lib/apt/lists/*
+
+# s6-overlay v3. The v1 tarball ships a real /bin directory, which replaces
+# Bookworm's /bin -> /usr/bin symlink and removes /bin/sh.
+# symlinks-noarch keeps /usr/bin/with-contenv for the php-fpm service script.
+RUN ARCH="$(case "$TARGETPLATFORM" in \
+        "linux/amd64") echo "x86_64" ;; \
+        "linux/arm/v7") echo "arm" ;; \
+        "linux/arm/v8"|"linux/arm64") echo "aarch64" ;; \
+        *) echo "x86_64" ;; \
+    esac)" && \
+    curl -sSL -o /tmp/s6-overlay-noarch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" && \
+    curl -sSL -o /tmp/s6-overlay-arch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.xz" && \
+    curl -sSL -o /tmp/s6-overlay-symlinks-noarch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" && \
+    tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
+    tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz && \
+    tar -C / -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz && \
+    rm /tmp/s6-overlay-noarch.tar.xz /tmp/s6-overlay-arch.tar.xz /tmp/s6-overlay-symlinks-noarch.tar.xz
 
 ##########################################
 # Builder for native libs
