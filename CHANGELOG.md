@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.4](https://github.com/flyimg/base-image/compare/1.8.3...1.8.4) (2026-10-21)
+
+
+### Bug Fixes
+
+* move the base image to Debian Bookworm after Bullseye security archives went offline ([8907020](https://github.com/flyimg/base-image/commit/8907020d461f5f377f43e3dbd8eaba8828531b0e))
+
 ## [1.8.3](https://github.com/flyimg/base-image/compare/1.8.2...1.8.3) (2026-10-21)
 
 
