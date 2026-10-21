@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.3](https://github.com/flyimg/base-image/compare/1.8.2...1.8.3) (2026-10-21)
+
+
+### Bug Fixes
+
+* bump libheif, libaom, and ImageMagick to current releases ([c3f85e5](https://github.com/flyimg/base-image/commit/c3f85e5bec8c034e76cf96993d06891e4fbf3ad5))
+
 ## [1.8.2](https://github.com/flyimg/base-image/compare/1.8.1...1.8.2) (2026-09-01)
 
 
