@@ -100,13 +100,15 @@ RUN docker-php-ext-install opcache && \
     echo "zend_extension=xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini && \
     echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/xdebug.ini
 
-# Python deps
+# Python deps. Bookworm marks the system interpreter as externally managed,
+# so pip refuses to install unless this override is set.
 ARG PILLOW_VERSION=11.3.0
 ARG PILLOW_AVIF_PLUGIN_VERSION=1.6.0
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install numpy pillow==${PILLOW_VERSION} && \
+    pip3 install --no-cache-dir numpy pillow==${PILLOW_VERSION} && \
     if [ "$TARGETPLATFORM" = "linux/amd64" -o "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        pip3 install pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}; \
+        pip3 install --no-cache-dir pillow-avif-plugin==${PILLOW_AVIF_PLUGIN_VERSION}; \
     fi
 
 # To creates the necessary links and cache in /usr/local/lib
