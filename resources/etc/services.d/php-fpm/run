@@ -1,4 +1,2 @@
-#!/usr/bin/with-contenv sh
-
-su www-data
+#!/bin/sh
 exec /usr/local/sbin/php-fpm --nodaemonize

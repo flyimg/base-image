@@ -1,3 +1,2 @@
 #!/bin/sh
-/usr/sbin/nginx
-echo "nginx running"
+exec /usr/sbin/nginx
