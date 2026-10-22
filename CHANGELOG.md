@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.5](https://github.com/flyimg/base-image/compare/1.8.4...1.8.5) (2026-10-22)
+
+
+### Bug Fixes
+
+* allow pip installs on Bookworm's externally managed Python ([13c1e52](https://github.com/flyimg/base-image/commit/13c1e523115789a577f88c4fc8f0929e92bc83ae))
+
 ## [1.8.4](https://github.com/flyimg/base-image/compare/1.8.3...1.8.4) (2026-10-21)
 
 
