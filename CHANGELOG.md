@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.6](https://github.com/flyimg/base-image/compare/1.8.5...1.8.6) (2026-10-22)
+
+
+### Bug Fixes
+
+* use system brotli for libjxl so ARM libheif builds link cleanly ([08e0780](https://github.com/flyimg/base-image/commit/08e0780be1e182972f1921bc7bbd5425e775b46f))
+
 ## [1.8.5](https://github.com/flyimg/base-image/compare/1.8.4...1.8.5) (2026-10-22)
 
 
