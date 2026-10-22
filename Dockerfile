@@ -48,10 +48,12 @@ ARG MOZJPEG_VERSION=4.1.5
 
 WORKDIR /build
 
-# Build libjxl
+# Build libjxl against system brotli. The bundled brotli installs a newer
+# libbrotlidec into /usr/local that then fails to link against Bookworm's
+# libbrotlicommon when building libheif tools on ARM.
 RUN git clone -b v${LIB_JXL_VERSION} --depth 1 --recursive https://github.com/libjxl/libjxl.git && \
     mkdir libjxl/build && cd libjxl/build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF .. && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DJPEGXL_FORCE_SYSTEM_BROTLI=ON .. && \
     make -j$(nproc) && make install && ldconfig && cd ../.. && rm -rf libjxl
 
 # Build libwebp
@@ -64,10 +66,12 @@ RUN git clone -b v${LIB_AOM_VERSION} --depth 1 https://aomedia.googlesource.com/
     cmake ../aom/ -DAOM_TARGET_CPU=generic -DENABLE_TESTS=0 -DBUILD_SHARED_LIBS=1 && \
     make -j$(nproc) && make install && ldconfig && cd .. && rm -rf aom build_aom
 
-# Build libheif
+# Build libheif. Skip examples/tests; they are unused in this image and were
+# the link site for the brotli mismatch above.
 RUN curl -L -o libheif.tar.gz https://github.com/strukturag/libheif/releases/download/v${LIB_HEIF_VERSION}/libheif-${LIB_HEIF_VERSION}.tar.gz && \
     tar xzf libheif.tar.gz && cd libheif-${LIB_HEIF_VERSION} && \
-    mkdir build && cd build && cmake --preset=release .. && \
+    mkdir build && cd build && \
+    cmake --preset=release -DWITH_EXAMPLES=OFF -DBUILD_TESTING=OFF -DWITH_GDK_PIXBUF=OFF .. && \
     make -j$(nproc) && make install && ldconfig && cd ../.. && rm -rf libheif-${LIB_HEIF_VERSION} libheif.tar.gz
 
 # Build MozJPEG into /opt/mozjpeg so it does not replace system libjpeg.
