@@ -1,5 +1,12 @@
 # Flyimg Changelog
 
+## [1.8.7](https://github.com/flyimg/base-image/compare/1.8.6...1.8.7) (2026-10-22)
+
+
+### Bug Fixes
+
+* make s6 service run scripts executable for overlay v3 ([d6c8d3e](https://github.com/flyimg/base-image/commit/d6c8d3ea10ecc70922e8706a4da4920825b95a92))
+
 ## [1.8.6](https://github.com/flyimg/base-image/compare/1.8.5...1.8.6) (2026-10-22)
 
 
